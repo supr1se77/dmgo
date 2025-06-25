@@ -1,0 +1,78 @@
+# =================================================================
+# CONFIGURAÇÃO OTIMIZADA PARA 2CAPTCHA - VERSÃO 2025
+# =================================================================
+
+direct_message_settings:
+  individual_delay: 20
+  rate_limit_delay: 10
+  offset: 100
+  max_dms_per_token: 0
+  skip_completed: true
+  call: false
+  remove_dead_tokens: true
+  remove_completed_members: true
+  stop_dead_tokens: true
+  check_mutual: false
+  friend_before_DM: false
+  online_tokens: false
+  receive_messages: false
+  skip_failed: true
+  block_after_dm: false
+  close_dm_after_message: false
+  multiple_message: false
+  delay_between_multiple_messages: 10
+
+proxy_settings:
+  proxy_from_file: true
+  proxy_for_captcha: true
+  use_proxy_for_gateway: true
+  timeout: 60
+
+scraper_settings:
+  scraper_delay: 3000
+  scrape_usernames: false
+  scrape_avatars: false
+  query_brute_extra_chars: ""
+
+captcha_settings:
+  solve_captchas: true
+  captcha_api_key: "79bc0b6707d44daeac6bf49e96b13608" # SUA CHAVE DO 2CAPTCHA
+  captcha_api: "2captcha.com" # CONFIGURADO PARA 2CAPTCHA
+  max_captcha_wait: 180
+  max_captcha_retry_dm: 2
+  max_captcha_retry_invite: 3
+
+other_settings: 
+  disable_keep_alives: false
+  constant_cookies: true
+  censor_token: false
+  logs: false
+  gateway_status: 4
+  ja3: "771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,27-23-41-13-16-18-5-10-11-35-65281-51-45-43-17513-0,29-24-25,0-1-2"
+  useragent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+  x_super_properties: "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6InB0LUJSIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzEyNi4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTI2LjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fZ3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjI4MzkxMSwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0="
+
+suspicion_avoidance:
+  random_individual_delay: 15
+  random_rate_limit_delay: 5
+  random_delay_before_dm: 5
+  typing: true
+  typing_variation: 250
+  typing_speed: 450
+  typing_base: 200
+
+dm_on_react:
+  observer_token: ""
+  change_name: true
+  change_avatar: true
+  invite: ""
+  server_id: ""
+  channel_id: ""
+  message_id: ""
+  emoji: ""
+  skip_completed: true
+  skip_failed: true
+  leave_token_on_ratelimit: true
+  rotate_tokens: true
+  max_anti_raid_queue: 20
+  max_dms_per_token: 10
