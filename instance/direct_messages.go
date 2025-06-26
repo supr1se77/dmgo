@@ -260,23 +260,33 @@ func (in *Instance) SendMessage(channelSnowflake string, memberid string) (int, 
 			}()
 		}
 	}
+	
+	// CORREÇÃO PRINCIPAL: Melhor tratamento do captcha
 	if res.StatusCode == 400 || res.StatusCode == 403 {
 		if !strings.Contains(string(body), "captcha") {
 			return res.StatusCode, body, nil
 		}
+		
+		// Verificar se temos uma chave de captcha configurada
 		if in.Config.CaptchaSettings.ClientKey == "" && in.Config.CaptchaSettings.CaptchaAPI != "invisifox.com" {
 			return res.StatusCode, body, fmt.Errorf("captcha detected but no client key set")
 		}
+		
 		var captchaDetect captchaDetected
 		err = json.Unmarshal(body, &captchaDetect)
 		if err != nil {
 			return res.StatusCode, body, fmt.Errorf("error while unmarshalling captcha %v", err)
 		}
+		
 		utilities.CaptchaDetected(in.CensorToken(), captchaDetect.Sitekey)
+		
+		// Resolver o captcha
 		solved, err := in.SolveCaptcha(captchaDetect.Sitekey, cookie, captchaDetect.RqData, captchaDetect.RqToken, fmt.Sprintf("https://discord.com/channels/@me/%s", channelSnowflake))
 		if err != nil {
 			return res.StatusCode, body, fmt.Errorf("error while solving captcha %v", err)
 		}
+		
+		// Criar novo payload com a solução do captcha
 		payload, err = json.Marshal(&map[string]interface{}{
 			"content":         x,
 			"tts":             false,
@@ -285,17 +295,42 @@ func (in *Instance) SendMessage(channelSnowflake string, memberid string) (int, 
 			"captcha_rqtoken": captchaDetect.RqToken,
 		})
 		if err != nil {
-			return res.StatusCode, body, fmt.Errorf("error while marshalling message %v %v ", index, err)
+			return res.StatusCode, body, fmt.Errorf("error while marshalling message with captcha %v %v ", index, err)
 		}
+		
+		// Criar nova requisição com o captcha resolvido
 		req, err = http.NewRequest("POST", url, strings.NewReader(string(payload)))
 		if err != nil {
-			return res.StatusCode, body, fmt.Errorf("error while making request to send message %v", err)
+			return res.StatusCode, body, fmt.Errorf("error while making request to send message with captcha %v", err)
 		}
+		
+		// Enviar a mensagem com o captcha resolvido
 		res, err = in.Client.Do(in.SendMessageHeaders(req, cookie, channelSnowflake))
 		if err != nil {
-			return t, body, fmt.Errorf("error while getting send message response %v", err)
+			return t, body, fmt.Errorf("error while getting send message response with captcha %v", err)
+		}
+		
+		// Ler a nova resposta
+		body, err = ioutil.ReadAll(res.Body)
+		if err != nil {
+			return res.StatusCode, body, fmt.Errorf("error while reading body after captcha %v", err)
+		}
+		
+		// Verificar se ainda há erro de captcha
+		if res.StatusCode == 400 && strings.Contains(string(body), "captcha") {
+			utilities.LogFailed("Token %v: Captcha resolvido incorretamente", in.CensorToken())
+			if in.Config.CaptchaSettings.CaptchaAPI == "anti-captcha.com" {
+				err := in.ReportIncorrectRecaptcha()
+				if err != nil {
+					utilities.LogErr("Error while reporting incorrect hcaptcha: %v", err)
+				} else {
+					utilities.LogSuccess("Reported incorrect hcaptcha %v", in.LastID)
+				}
+			}
+			return res.StatusCode, body, fmt.Errorf("captcha solved incorrectly")
 		}
 	}
+	
 	in.Count++
 	return res.StatusCode, body, nil
 }

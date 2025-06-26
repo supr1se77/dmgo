@@ -41,7 +41,7 @@ func (in *Instance) SolveCaptcha(sitekey string, cookie string, rqData string, r
 }
 
 /*
-	2Captcha/RuCaptcha
+	2Captcha/RuCaptcha - CORRIGIDO
 */
 func (in *Instance) twoCaptcha(sitekey, rqdata, site string) (string, error) {
 	var solvedKey string
@@ -57,8 +57,10 @@ func (in *Instance) twoCaptcha(sitekey, rqdata, site string) (string, error) {
 	q.Set("key", in.Config.CaptchaSettings.ClientKey)
 	q.Set("method", "hcaptcha")
 	q.Set("sitekey", sitekey)
-	// *** A CORREÇÃO CRÍTICA ESTÁ AQUI ***
-	// Agora ele usa a URL específica (parâmetro 'site') em vez de uma URL genérica.
+	// CORREÇÃO: Usar a URL correta do Discord
+	if site == "" {
+		site = "https://discord.com"
+	}
 	q.Set("pageurl", site)
 	q.Set("userAgent", in.UserAgent)
 	q.Set("json", "1")
@@ -163,12 +165,11 @@ func (in *Instance) twoCaptcha(sitekey, rqdata, site string) (string, error) {
 }
 
 /*
-	Capmonster
+	Capmonster - CORRIGIDO
 */
 func (in *Instance) Capmonster(sitekey, website, rqdata, cookies string) (string, error) {
 	var solvedKey string
-	// Coloque esta linha de volta no lugar da outra:
-inEndpoint, outEndpoint := fmt.Sprintf("https://api.%s/createTask", in.Config.CaptchaSettings.CaptchaAPI), fmt.Sprintf("https://api.%s/getTaskResult", in.Config.CaptchaSettings.CaptchaAPI)
+	inEndpoint, outEndpoint := fmt.Sprintf("https://api.%s/createTask", in.Config.CaptchaSettings.CaptchaAPI), fmt.Sprintf("https://api.%s/getTaskResult", in.Config.CaptchaSettings.CaptchaAPI)
 	var submitCaptcha CapmonsterPayload
 	if in.Config.CaptchaSettings.ClientKey == "" {
 		return solvedKey, fmt.Errorf("nenhuma chave de cliente fornecida na configuração")
@@ -205,13 +206,15 @@ inEndpoint, outEndpoint := fmt.Sprintf("https://api.%s/createTask", in.Config.Ca
 	} else {
 		submitCaptcha.Task.CaptchaType = "HCaptchaTaskProxyless"
 	}
-	submitCaptcha.Task.WebsiteURL, submitCaptcha.Task.WebsiteKey, submitCaptcha.Task.UserAgent = "https://discord.com", sitekey, in.UserAgent
-if rqdata != "" {
-	// Esta é a versão correta: enviamos o rqdata no payload enterprise,
-	// mas SEM o parâmetro "Sentry" que causa o erro de política.
-	submitCaptcha.Task.IsInvisible = true
-	submitCaptcha.Task.Enterprise.RqData = rqdata
-}
+	// CORREÇÃO: Usar a URL correta
+	if website == "" {
+		website = "https://discord.com"
+	}
+	submitCaptcha.Task.WebsiteURL, submitCaptcha.Task.WebsiteKey, submitCaptcha.Task.UserAgent = website, sitekey, in.UserAgent
+	if rqdata != "" {
+		submitCaptcha.Task.IsInvisible = true
+		submitCaptcha.Task.Enterprise.RqData = rqdata
+	}
 	payload, err := json.Marshal(submitCaptcha)
 	if err != nil {
 		return solvedKey, fmt.Errorf("erro ao codificar dados: %v", err)
